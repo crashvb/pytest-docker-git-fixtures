@@ -30,8 +30,10 @@ from lovely.pytest.docker.compose import Services
 
 LOGGER = logging.getLogger(__name__)
 
-DOCKER_GIT_SERVICE = "pytest-docker-git"
-DOCKER_GIT_SERVICE_PATTERN = f"{DOCKER_GIT_SERVICE}-{{0}}-{{1}}"
+GIT_PORT_INSECURE = 80
+GIT_PORT_SECURE = 443
+GIT_SERVICE = "pytest-docker-git"
+GIT_SERVICE_PATTERN = f"{GIT_SERVICE}-{{0}}-{{1}}"
 
 
 class CertificateKeypair(NamedTuple):
@@ -91,7 +93,7 @@ def generate_cacerts(
         The path to the temporary file.
     """
     # Note: where() path cannot be trusted to be temporary, don't pollute persistent files ...
-    name = DOCKER_GIT_SERVICE_PATTERN.format("cacerts", "x")
+    name = GIT_SERVICE_PATTERN.format("cacerts", "x")
     tmp_path = tmp_path_factory.mktemp(__name__).joinpath(name)
     copyfile(where(), tmp_path)
 
@@ -138,7 +140,7 @@ def generate_htpasswd(
 
 
 def generate_keypair(
-    *, keysize: int = 4096, life_cycle: int = 7 * 24 * 60 * 60
+    *, keysize: int = 4096, life_cycle: int = 7 * 24 * 60 * 60, service_name: str = None
 ) -> CertificateKeypair:
     """
     Generates a keypair and certificate for the GIT service.
@@ -146,6 +148,7 @@ def generate_keypair(
     Args:
         keysize: size of the private key.
         life_cycle: Lifespan of the generated certificates, in seconds.
+        service_name: Name of the service to be added as a SAN.
 
     Returns:
         tuple:
@@ -196,6 +199,7 @@ def generate_keypair(
     x509_cert.set_serial_number(randrange(100000))
     x509_cert.set_version(2)
 
+    service_name = [f"DNS:{service_name}"] if service_name else []
     x509_cert.add_extensions(
         [
             crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE"),
@@ -209,6 +213,7 @@ def generate_keypair(
                         f"DNS:*.{getfqdn()}",
                         "DNS:localhost",
                         "DNS:*.localhost",
+                        *service_name,
                         "IP:127.0.0.1",
                     ]
                 ).encode("utf-8"),
@@ -317,7 +322,7 @@ def start_service(
     docker_services: Services,
     *,
     docker_compose: Path,
-    port: int,
+    private_port: int,
     service_name: str,
     **kwargs,
 ):
@@ -328,8 +333,8 @@ def start_service(
     Args:
         docker_services: lovely service to use to start the service.
         docker_compose: Path to the docker-compose configuration file (to be injected).
-        port: Name of the service, within the docker-compose configuration, to be instantiated.
-        service_name: The port, inside the container, on which the service is running.
+        private_port: The private port to which the service is bound.
+        service_name: Name of the service, within the docker-compose configuration, to be instantiated.
     """
     # DUCK PUNCH: Don't get in the way of user-defined lovey/pytest/docker/compose.py::docker_compose_files()
     #             overrides ...
@@ -337,7 +342,13 @@ def start_service(
         str(docker_compose)
     ]  # pylint: disable=protected-access
     docker_services.start(service_name)
-    public_port = docker_services.wait_for_service(service_name, port, **kwargs)
+
+    public_port = docker_services.wait_for_service(
+        pause=3,
+        private_port=private_port,
+        service=service_name,
+        **kwargs,
+    )
     return f"{docker_services.docker_ip}:{public_port}"
 
 

@@ -14,7 +14,7 @@ from OpenSSL import crypto
 from _pytest.tmpdir import TempPathFactory
 
 from pytest_docker_git_fixtures import (
-    DOCKER_GIT_SERVICE_PATTERN,
+    GIT_SERVICE_PATTERN,
     generate_cacerts,
     generate_htpasswd,
     generate_keypair,
@@ -92,10 +92,10 @@ def test_get_created_repos_empty(request):
 def test_get_docker_compose_user_defined(docker_compose_files: List[str]):
     """Tests that the user defined check fails here."""
 
-    service_name = DOCKER_GIT_SERVICE_PATTERN.format("insecure", 0)
+    service_name = GIT_SERVICE_PATTERN.format("insecure", 0)
     for _ in get_docker_compose_user_defined(docker_compose_files, service_name):
         assert False
-    service_name = DOCKER_GIT_SERVICE_PATTERN.format("secure", 0)
+    service_name = GIT_SERVICE_PATTERN.format("secure", 0)
     for _ in get_docker_compose_user_defined(docker_compose_files, service_name):
         assert False
 

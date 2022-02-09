@@ -22,7 +22,7 @@ from pytest_docker_git_fixtures import (
     GITCerts,
     GITInsecure,
     GITSecure,
-    DOCKER_GIT_SERVICE_PATTERN,
+    GIT_SERVICE_PATTERN,
 )
 from pytest_docker_git_fixtures.fixtures import _get_create_repo, _get_mirror_repo
 from pytest_docker_git_fixtures.utils import git_askpass_script
@@ -532,7 +532,7 @@ def test_git_username_list(git_username_list: List[str], pdgf_scale_factor: int)
 
 def test_pdgf_docker_compose_insecure(pdgf_docker_compose_insecure: Path):
     """Test that the embedded docker-compose for insecure scms can be copied to a temporary file."""
-    service_name = DOCKER_GIT_SERVICE_PATTERN.format("insecure", 0)
+    service_name = GIT_SERVICE_PATTERN.format("insecure", 0)
     assert service_name in pdgf_docker_compose_insecure.read_text()
 
 
@@ -541,14 +541,14 @@ def test_pdgf_docker_compose_insecure_list(
 ):
     """Test that the embedded docker-compose for insecure scms can be copied to a temporary file."""
     for i in range(pdgf_scale_factor):
-        service_name = DOCKER_GIT_SERVICE_PATTERN.format("insecure", i)
+        service_name = GIT_SERVICE_PATTERN.format("insecure", i)
         assert service_name in pdgf_docker_compose_insecure_list[i].read_text()
     assert no_duplicates(pdgf_docker_compose_insecure_list)
 
 
 def test_pdgf_docker_compose_secure(pdgf_docker_compose_secure: Path):
     """Test that the embedded docker-compose for secure scms can be copied to a temporary file."""
-    service_name = DOCKER_GIT_SERVICE_PATTERN.format("secure", 0)
+    service_name = GIT_SERVICE_PATTERN.format("secure", 0)
     assert service_name in pdgf_docker_compose_secure.read_text()
 
 
@@ -557,7 +557,7 @@ def test_pdgf_docker_compose_secure_list(
 ):
     """Test that the embedded docker-compose for secure scms can be copied to a temporary file."""
     for i in range(pdgf_scale_factor):
-        service_name = DOCKER_GIT_SERVICE_PATTERN.format("secure", i)
+        service_name = GIT_SERVICE_PATTERN.format("secure", i)
         assert service_name in pdgf_docker_compose_secure_list[i].read_text()
     assert no_duplicates(pdgf_docker_compose_secure_list)
 

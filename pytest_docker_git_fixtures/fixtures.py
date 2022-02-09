@@ -22,8 +22,10 @@ from _pytest.tmpdir import TempPathFactory
 
 from .utils import (
     check_url_secure,
-    DOCKER_GIT_SERVICE,
-    DOCKER_GIT_SERVICE_PATTERN,
+    GIT_PORT_INSECURE,
+    GIT_PORT_SECURE,
+    GIT_SERVICE,
+    GIT_SERVICE_PATTERN,
     generate_cacerts,
     generate_htpasswd,
     generate_keypair,
@@ -54,6 +56,7 @@ class GITInsecure(NamedTuple):
     created_repos: List[str]
     docker_compose: Path
     endpoint: str
+    endpoint_name: str
     mirrored_repos: List[str]
     service_name: str
 
@@ -67,6 +70,7 @@ class GITSecure(NamedTuple):
     created_repos: List[str]
     docker_compose: Path
     endpoint: str
+    endpoint_name: str
     htpasswd: Path
     mirrored_repos: List[str]
     password: str
@@ -204,12 +208,13 @@ def _git_certs(
             continue
 
         tmp_path = tmp_path_factory.mktemp(__name__)
-        keypair = generate_keypair()
+        service_name = GIT_SERVICE_PATTERN.format("secure", i)
+        keypair = generate_keypair(service_name=service_name)
         git_cert = GITCerts(
-            ca_certificate=tmp_path.joinpath(f"{DOCKER_GIT_SERVICE}-ca-{i}.crt"),
-            ca_private_key=tmp_path.joinpath(f"{DOCKER_GIT_SERVICE}-ca-{i}.key"),
-            certificate=tmp_path.joinpath(f"{DOCKER_GIT_SERVICE}-{i}.crt"),
-            private_key=tmp_path.joinpath(f"{DOCKER_GIT_SERVICE}-{i}.key"),
+            ca_certificate=tmp_path.joinpath(f"{GIT_SERVICE}-ca-{i}.crt"),
+            ca_private_key=tmp_path.joinpath(f"{GIT_SERVICE}-ca-{i}.key"),
+            certificate=tmp_path.joinpath(f"{GIT_SERVICE}-{i}.crt"),
+            private_key=tmp_path.joinpath(f"{GIT_SERVICE}-{i}.key"),
         )
         git_cert.ca_certificate.write_bytes(keypair.ca_certificate)
         git_cert.ca_private_key.write_bytes(keypair.ca_private_key)
@@ -328,7 +333,7 @@ def _git_insecure(
         if i < len(result):
             continue
 
-        service_name = DOCKER_GIT_SERVICE_PATTERN.format("insecure", i)
+        service_name = GIT_SERVICE_PATTERN.format("insecure", i)
         tmp_path = tmp_path_factory.mktemp(__name__)
 
         create_repos = []
@@ -368,7 +373,7 @@ def _git_insecure(
         endpoint = start_service(
             docker_services,
             docker_compose=path_docker_compose,
-            port=80,
+            private_port=GIT_PORT_INSECURE,
             service_name=service_name,
         )
         LOGGER.debug("Insecure GIT endpoint [%d]: %s", i, endpoint)
@@ -378,6 +383,7 @@ def _git_insecure(
                 created_repos=create_repos,
                 docker_compose=path_docker_compose,
                 endpoint=endpoint,
+                endpoint_name=f"{service_name}:{GIT_PORT_INSECURE}",
                 mirrored_repos=mirror_repos,
                 service_name=service_name,
             )
@@ -470,7 +476,7 @@ def _git_secure(
         if i < len(result):
             continue
 
-        service_name = DOCKER_GIT_SERVICE_PATTERN.format("secure", i)
+        service_name = GIT_SERVICE_PATTERN.format("secure", i)
         tmp_path = tmp_path_factory.mktemp(__name__)
 
         create_repos = []
@@ -521,7 +527,7 @@ def _git_secure(
             docker_services,
             check_server=check_server,
             docker_compose=path_docker_compose,
-            port=443,
+            private_port=GIT_PORT_SECURE,
             service_name=service_name,
         )
         LOGGER.debug("Secure GIT endpoint [%d]: %s", i, endpoint)
@@ -534,6 +540,7 @@ def _git_secure(
                 created_repos=create_repos,
                 docker_compose=path_docker_compose,
                 endpoint=endpoint,
+                endpoint_name=f"{service_name}:{GIT_PORT_SECURE}",
                 htpasswd=git_htpasswd_list[i],
                 mirrored_repos=mirror_repos,
                 password=git_password_list[i],
@@ -695,7 +702,7 @@ def _pdgf_docker_compose_insecure(
         if i < len(result):
             continue
 
-        service_name = DOCKER_GIT_SERVICE_PATTERN.format("insecure", i)
+        service_name = GIT_SERVICE_PATTERN.format("insecure", i)
         chain = itertools.chain(
             get_docker_compose_user_defined(docker_compose_files, service_name),
             # TODO: lovely-docker-compose uses the file for teardown ...
@@ -760,7 +767,7 @@ def _pdgf_docker_compose_secure(
         if i < len(result):
             continue
 
-        service_name = DOCKER_GIT_SERVICE_PATTERN.format("secure", i)
+        service_name = GIT_SERVICE_PATTERN.format("secure", i)
         chain = itertools.chain(
             get_docker_compose_user_defined(docker_compose_files, service_name),
             get_embedded_file(

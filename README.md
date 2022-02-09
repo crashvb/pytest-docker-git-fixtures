@@ -21,13 +21,13 @@ All fixtures should be automatically included via the <tt>pytest11</tt> entry po
 import pytest
 import subprocess
 from pathlib import Path
-from pytest_git_fixtures import GITInsecure, GITSecure  # Optional, for typing
+from pytest_docker_git_fixtures import GITInsecure, GITSecure  # Optional, for typing
 
 @pytest.mark.create_repo("test_git_secure")
 @pytest.mark.mirror_repo("https://github.com/crashvb/shim-bind.git")
 def test_git_secure(git_secure: GITSecure, tmp_path: Path):
     uri = f"https://{git_secure.endpoint}/secure/shim-bind.git"
-    path = tmp_path.join("local-clone")
+    path = tmp_path.joinpath("local-clone")
     subprocess.run(
         ["git", "clone", uri, str(path)],
         check=True,
@@ -39,7 +39,7 @@ def test_git_secure(git_secure: GITSecure, tmp_path: Path):
 @pytest.mark.create_repo("test_git_insecure")
 def test_git_insecure(git_insecure: GITInsecure, tmp_path: Path):
     uri = f"https://{git_insecure.endpoint}/insecure/test_git_insecure.git"
-    path = tmp_path.join("local-clone")
+    path = tmp_path.joinpath("local-clone")
     subprocess.run(
         ["git", "clone", uri, str(path)],
         check=True,
@@ -108,12 +108,12 @@ Configures and instantiates a GIT without TLS or authentication.
 import pytest
 import subprocess
 from pathlib import Path
-from pytest_git_fixtures import GITInsecure  # Optional, for typing
+from pytest_docker_git_fixtures import GITInsecure  # Optional, for typing
 
 @pytest.mark.create_repo("test_git_insecure")
 def test_git_insecure(git_insecure: GITInsecure, tmp_path: Path):
     uri = f"https://{git_insecure.endpoint}/insecure/test_git_insecure.git"
-    path = tmp_path.join("local-clone")
+    path = tmp_path.joinpath("local-clone")
     subprocess.run(
         ["git", "clone", uri, str(path)],
         check=True,
@@ -130,6 +130,7 @@ The following fields are defined in the tuple provided by this fixture:
 * **created_repos** - The list of created repositories.
 * **docker_compose** - Path to the fully instantiated docker-compose configuration.
 * **endpoint** - Endpoint of the insecure GIT service.
+* **endpoint_name** - Endpoint of the insecure GIT service, by service name.
 * **mirrored_repos** - The list of mirrored repositories.
 * **service_name** - Name of the service within the docker-compose configuration.
 
@@ -147,12 +148,12 @@ Configures and instantiates a TLS enabled GIT with HTTP basic authorization.
 import pytest
 import subprocess
 from pathlib import Path
-from pytest_git_fixtures import GITSecure  # Optional, for typing
+from pytest_docker_git_fixtures import GITSecure  # Optional, for typing
 
 @pytest.mark.mirror_repo("https://github.com/crashvb/shim-bind.git")
 def test_git_secure(git_secure: GITSecure, tmp_path: Path):
     uri = f"https://{git_secure.endpoint}/secure/shim-bind.git"
-    path = tmp_path.join("local-clone")
+    path = tmp_path.joinpath("local-clone")
     subprocess.run(
         ["git", "clone", uri, str(path)],
         check=True,
@@ -172,6 +173,7 @@ The following fields are defined in the tuple provided by this fixture:
 * **created_repos** - The list of created repositories.
 * **docker_compose** - Path to the fully instantiated docker-compose configuration.
 * **endpoint** - Endpoint of the secure GIT service.
+* **endpoint_name** - Endpoint of the secure GIT service, by service name.
 * **htpasswd** - from [git_htpasswd](#git_htpasswd)
 * **mirrored_repos** - The list of mirrored repositories.
 * **password** - from [git_password](#git_password).
@@ -206,7 +208,7 @@ This marker specifies the GIT repository(ies) that should be initialized within 
 
 ```python
 import pytest
-from pytest_git_fixtures import GITSecure  # Optional, for typing
+from pytest_docker_git_fixtures import GITSecure  # Optional, for typing
 
 @pytest.mark.create_repo("test_git_secure")
 def test_git_secure(git_secure: GITSecure):
@@ -237,7 +239,7 @@ A helper function, `get_created_repos`, is included for test scenarios that  wis
 
 ```python
 import pytest
-from pytest_git_fixtures import GITSecure, get_created_repos
+from pytest_docker_git_fixtures import GITSecure, get_created_repos
 
 @pytest.mark.create_repo("test_git_secure")
 def test_git_secure(git_secure: GITSecure, request):
@@ -259,7 +261,7 @@ For example:
 ```python
 import requests
 from typing import List  # Optional, for typing
-from pytest_git_fixtures import GITSecure  # Optional, for typing
+from pytest_docker_git_fixtures import GITSecure  # Optional, for typing
 
 def test_git_secure_list(git_secure_list: List[GITSecure]):
     for git_secure in git_secure_list:
