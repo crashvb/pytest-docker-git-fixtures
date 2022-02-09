@@ -6,4 +6,4 @@ from .conftest import *
 from .fixtures import *
 from .utils import get_created_repos, get_mirrored_repos
 
-__version__ = "0.1.2"
+__version__ = "0.1.3.dev0"
