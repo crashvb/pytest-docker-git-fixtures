@@ -40,7 +40,7 @@ setup(
         "pytest",
     ],
     keywords="docker fixtures git pytest scm",
-    license="GNU General Public License v3.0",
+    license="Apache Software License",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     name="pytest_docker_git_fixtures",
