@@ -46,6 +46,10 @@ setup(
     name="pytest_docker_git_fixtures",
     packages=find_packages(),
     package_data={"pytest_docker_git_fixtures": ["docker-compose*.yml"]},
+    project_urls={
+        "Bug Reports": "https://github.com/crashvb/pytest-docker-git-fixtures/issues",
+        "Source": "https://github.com/crashvb/pytest-docker-git-fixtures",
+    },
     test_suite="tests",
     tests_require=["www_authenticate"],
     url="https://github.com/crashvb/pytest-docker-git-fixtures",
