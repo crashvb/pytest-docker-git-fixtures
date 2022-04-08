@@ -1,5 +1,13 @@
 # pytest-docker-git-fixtures
 
+[![pypi version](https://img.shields.io/pypi/v/pytest-docker-git-fixtures.svg)](https://pypi.org/project/pytest-docker-git-fixtures)
+[![build status](https://github.com/crashvb/pytest-docker-git-fixtures/actions/workflows/main.yml/badge.svg)](https://github.com/crashvb/pytest-docker-git-fixtures/actions)
+[![coverage status](https://coveralls.io/repos/github/crashvb/pytest-docker-git-fixtures/badge.svg)](https://coveralls.io/github/crashvb/pytest-docker-git-fixtures)
+[![python versions](https://img.shields.io/pypi/pyversions/pytest-docker-git-fixtures.svg?logo=python&logoColor=FBE072)](https://pypi.org/project/pytest-docker-git-fixtures)
+[![linting](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
+[![code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![license](https://img.shields.io/github/license/crashvb/pytest-docker-git-fixtures.svg)](https://github.com/crashvb/pytest-docker-git-fixtures/blob/master/LICENSE)
+
 ## Overview
 
 Pytest fixtures to instantiate and populated local GIT SCMs, using [lovely-pytest-docker](https://pypi.org/project/lovely-pytest-docker), for testing.
@@ -50,9 +58,6 @@ def test_git_insecure(git_insecure: GITInsecure, tmp_path: Path):
 ```
 
 The `create_repo` and `mirror_repo` marks can optionally be added to stage repositories in the GIT prior to testing. See [Markers](#markers) for details.
-## Compatibility
-
-* Tested with python 3.8
 
 ## Installation
 ### From [pypi.org](https://pypi.org/project/pytest-docker-git-fixtures/)
